@@ -1,0 +1,90 @@
+---
+config:
+  theme: neo-dark
+  look: neo
+  layout: elk
+---
+flowchart LR
+ subgraph main_compressor["main_compressor"]
+    direction LR
+        Sum["Sum"]
+        LCC_1["LCC_1"]
+        compressor_2["compressor_2"]
+        compressor_1["compressor_1"]
+        compressor_0["compressor_0"]
+        LCC_0["LCC_0"]
+  end
+ subgraph main_decompressor["main_decompressor"]
+    direction LR
+        LCC_3["LCC_3"]
+        compressor_5["compressor_5"]
+        compressor_4["compressor_4"]
+        compressor_3["compressor_3"]
+        LCC_2["LCC_2"]
+  end
+ subgraph compressor["compressor"]
+    direction LR
+        in["in"]
+        cat["cat"]
+        LCC["LCC"]
+        out["out"]
+        B["B"]
+        Conv5x5["Conv5x5"]
+  end
+ subgraph main["Architecture"]
+    direction TB
+        main_decompressor
+        main_compressor
+  end
+ subgraph fpcompressor["fp_compressor"]
+    direction LR
+        Sum_a["Sum"]
+        LCC_b["LCC_1"]
+        compressor_a["compressor_a"]
+        LCC_a["LCC_0"]
+  end
+ subgraph fpdecompressor["fp_decompressor"]
+    direction LR
+        LCC_d["LCC_3"]
+        compressor_b["compressor_b"]
+        LCC_c["LCC_2"]
+  end
+ subgraph FP["Fixed-Point Variant"]
+    direction TB
+        fpdecompressor
+        fpcompressor
+  end
+ subgraph LCC_["LCC"]
+    direction LR
+        Linear_2["Linear_2"]
+        Act_2["Act_2"]
+        Linear_1["Linear_1"]
+        Act_1["Act_1"]
+        Linear["Linear"]
+  end
+    main_compressor -- Bx240 --> main_decompressor
+    LCC_b --> Sum_a
+    compressor_a --> LCC_b & compressor_a
+    LCC_a --> compressor_a
+    compressor_b --> LCC_d & compressor_b
+    LCC_c --> compressor_b
+    fpcompressor -- Bx240 --> fpdecompressor
+    Linear --> Act_1
+    Act_1 --> Linear_1
+    Linear_1 --> Act_2
+    Act_2 --> Linear_2
+    LCC_0 --> compressor_0
+    compressor_0 --> compressor_1
+    compressor_1 --> compressor_2
+    compressor_2 --> LCC_1
+    LCC_1 --> Sum
+    LCC_2 --> compressor_3
+    compressor_3 --> compressor_4
+    compressor_4 --> compressor_5
+    compressor_5 --> LCC_3
+    in --> cat
+    in -- Bx240xHxW --> Conv5x5
+    Conv5x5 -- Bx120xHxW --> B
+    B --> cat
+    cat -- Bx360xHxW --> LCC
+    LCC --> out
