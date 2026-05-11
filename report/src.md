@@ -1,20 +1,57 @@
 // backticks are not allowed..
 let textdata = String.raw`
 
-# Real-time Flow
-## flow models at the speed of psuedospectral solvers
+# Real-time Flow <p>fast flow models at psuedospectral solver speed</p>
 
-Akhil Sadam, 2026-5-12 [MIT 6.8300 CV Project]
+<div class='author'>
+<a class='flair' href='https://scenerepresentations.org/courses/2026/spring/advances-in-cv/'> AiCV 2026
+</a> <br>
+<a class='flair'href='https://akhilsadam.github.io/#/'> Akhil Sadam
+</a>
+</div>
 
-(I just found SDXS, which is dangerously close to my approach 5/5/26)
+## Introduction: Fluid solvers are too slow! Fluid solvers are too fast!
 
-## Motivation
+For ML-based surrogate modeling, fluid solvers pose an unusual problem: they are both too slow and too fast.     Consider atmospheric and oceanic flow. High-fidelity CFD simulation is too slow for many practical applications, including real-time forecasting and inverse problems. Recent ML systems (such as ECMWF's AIFS) now attain comparable accuracy at much higher speed.
 
-- Generative modeling for atmospheric and oceanic flow is widely researched, but cannot yet compete in speed.
-- In particular, psuedospectral approaches, like FNO, can achieve ms-level iteration for large (2048x2048) images.
-- For closure (model correction) and inverse problems, such fast iteration is crucial.
+The core ML models (including FourCastNet3, Spherical Fourier Neural Operators, and FNO) etc. are built around much faster psuedospectral solvers but typically benchmarked against the slower numerical weather prediction. Psuedospectral solvers can achieve millisecond-scale iteration for large (2048x2048) fields, orders of magnitude faster than both the high-fidelity CFD and many ML surrogates. 
 
-What speed do we need?
+In practice, speed comparisons are then misleading: the ML speedups often often reflect evaluation against a slow baseline. Many ML surrogates end up trading speed for accuracy, rather than improving both simultaneously.
+If a surrogate builds on an efficient pseudospectral backbone, it should exhibit comparable computational scaling.
+
+We aim to achieve such scaling, which would make inverse problems (flow design and control) and closure (fast model correction) computationally viable. In particular, we design a fast, high-resolution flow-matching model for 2D quasigeostrophic flow.
+
+## Prior Work
+
+- SPRINT
+- Dino
+- Repa
+- Self-flow
+- SIREN
+- InstNGP, maybe??
+- Analytic closure (OCEANS)
+- FNO
+- SDXS https://arxiv.org/abs/2403.16627 (just found this)
+
+## Architecture and Requirements
+
+### Stochastic 
+
+### Speed
+
+### Resolution invariance and operational intensity
+
+Theoretically, well-designed ML should be able to outperform psuedospectral solvers: standard GEMM operations are compute-bound, with operational intensity cubic in the field dimension, while psuedospectral solvers are typically memory-bound by the FFT operation, with linear intensity.
+For large fields, then, patch-based tokenization is a natural way to take advantage of this difference. While no longer global, patch-level GEMMs can locally approximate the FFT. Further, the trained network can also generalize to any resolution field (resolution invariance).
+
+Unlike other patch-diffusion papers (climate in a bottle), we do not implement any overlapping patch schemes. 
+For quasigeostrophic flow, and more generally geophysical flows, the field has a fundamental (lowest) spatial frequency that depends on the driving forces (temperature and pressure differences for atmosphere, and wind for the ocean). As long as each patch/token can capture features corresponding to this lowest frequency (the forcing frequency), we hypothesize that fully global information is not required. 
+<!-- [Hypothesis] -->
+
+For simplicity, we evaluate this hypothesis with MLP-based denoisers (unlike SDXS and DiT-based approaches).
+
+### Scale invariance (tbd)
+
 We use our simplified 2D quasigeostrophic solver (PyTorch) to estimate desired speed (for single batch).
 
 - A 512x512 solver can iterate at 800it/s, or about 1.25ms per step, at a numerical timestep of 1e-4.
@@ -31,9 +68,6 @@ We target 60 FPS (or 16ms) on 2048x2048 images on an L40S GPU, since vorticity i
 Like SDXS, we start with a fast autoencoder:
 - 3x Pixelunshuffle and linear downsample with skip (1x512x512 -> 1x64x64) and reverse [TODO]
 - Use SIREN with triangle-wave activation for fast training
-
-Unlike SDXS and DiT-based approaches, we try to stay close to MLP-based denoisers for speed.
-As long as each patch/token can capture the lowest frequency (the forcing frequency), we do not require fully global information. [Hypothesis]
 
 (prelim. conclusion: still need global conditioning for HF alignment? Or is it just the autoencoder is unconditionally sampling high freq?)
 (even more shaky hypothesis: the minimal global information we need for high-frequency alignment can come from representation learning)
@@ -81,6 +115,14 @@ Refs:
 
 
 <!-- 
+
+
+(I just found SDXS, which is dangerously close to my approach 5/5/26)
+----
+
+- Generative modeling for atmospheric and oceanic flow is widely researched, but cannot yet compete in speed.
+- In particular, psuedospectral approaches, like FNO, can achieve ms-level iteration for large (2048x2048) images.
+- For closure (model correction) and inverse problems, such fast iteration is crucial.
 
 ## Motivation
 

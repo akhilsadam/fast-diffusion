@@ -1,0 +1,13 @@
+.slide-right {
+  /* Set duration and the keyframe name */
+  animation: slideRight 2s ease-out;
+}
+
+@keyframes slideRight {
+  from {
+    transform: translateX(50%); /* Start off-screen to the left */
+  }
+  to {
+    transform: translateX(0); /* End at original position */
+  }
+}

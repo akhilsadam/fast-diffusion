@@ -31,6 +31,23 @@ h1 {
     font-family: var(--kotoba3);
     font-size: 3em;
     color: var(--haiiro-ld);
+    position: sticky;
+    top: 0px;
+    backdrop-filter: blur(6.0px) contrast(4.0);
+    margin-left: -4%;
+    padding-bottom: 5px;
+}
+
+h1>p{
+  display: none;
+}
+
+h1:hover>p{
+  display: inline;
+  color: var(--haiiro-ld);
+  transition: 0.5s;
+  font-family: var(--kotoba3);
+  margin: 0px;
 }
 
 h2 {
@@ -73,10 +90,25 @@ p{
 }
 
 #content{
-    width: 90%;
+    width: calc(90% - 50px);
     margin-left: 5%;
 }
 
+.author{
+  z-index: 1;
+  position: fixed;
+  right: 2em;
+  bottom: 2em;
+  text-align: right;
+  font-family: var(--code);
+}
+.flair{
+  color:  unset !important;
+  text-decoration: none;
+}
+.flair:hover{
+  color:  var(--karakurenai) !important;
+}
 
 details {
     margin-left: 2em;
