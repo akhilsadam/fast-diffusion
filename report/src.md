@@ -79,7 +79,7 @@ Refs:
 - SDXS https://arxiv.org/abs/2403.16627 (just found this)
 
 
-`;
+
 <!-- 
 
 ## Motivation
@@ -412,3 +412,5 @@ citation{VAE, [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114)
 citation{TwoNN, [Estimating the intrinsic dimension of datasets by a minimal neighborhood information](https://arxiv.org/abs/1803.06992)}
 citation{PACBayesGeneralize, [Non-Vacuous Generalization Bounds at the ImageNet Scale: A PAC-Bayesian Compression Approach](https://arxiv.org/abs/1804.05862)}
 citation{InformationTheory, [Information Theory: From Coding to Learning](https://people.lids.mit.edu/yp/homepage/data/itbook-export.pdf)}-->
+
+`;
